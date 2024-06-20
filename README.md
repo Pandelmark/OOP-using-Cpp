@@ -1,2 +1,2 @@
 # OOP-using-C-playing-with-Constructors
-Practicing constructors and other various aspects of the language in C++
+Practicing constructors and various other aspects of the language in C++
