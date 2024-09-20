@@ -1,2 +1,3 @@
 # OOP-using-C-playing-with-Constructors
-Practicing constructors and various other aspects of the language in C++
+
+A program that calculates numbers with digits many more than what C++'s data types can serve.
