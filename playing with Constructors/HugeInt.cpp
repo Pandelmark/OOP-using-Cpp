@@ -69,9 +69,9 @@ public:
 
     void printStuff(const HugeInt&, const HugeInt&);
 
-    // ΖΗΤΟΥΜΕΝΕΣ ΣΥΝΑΡΤΗΣΕΙΣ
+    // REQUIRED FUNCTIONS
 
-    // Συνάρτηση υπολογισμού Παραγωντικού
+    // Factorial calculation function
     HugeInt factorial() {
         if (size == 0 || (size == 1 && Digits[0] == '0')) {
             allocateDigits(1);
@@ -83,49 +83,49 @@ public:
         for (unsigned int i = 0; i < size; i++)
             n = n * 10 + (Digits[size - 1 - i] - '0');
 
-        // 'log10(2 * M_PI * n) / 2' Αυτή η έκφραση υπολογίζει το λογαριθμικό μέρος της σταθεράς για τον υπολογισμό των ψηφίων του παραγοντικού, βάσει της προσέγγισης Stirling.
-        // 'n * log10(n / M_E)' Αυτή η έκφραση υπολογίζει το κύριο μέρος του λογαριθμικού υπολογισμού, όπου n είναι το αριθμητικό μέρος του παραγοντικού και M_E είναι η σταθερά e
+        // 'log10(2 * M_PI * n) / 2' This expression calculates the logarithmic part of the constant for digit calculation of the factorial based on Stirling's approximation.
+        // 'n * log10(n / M_E)' This expression calculates the main part of the logarithmic calculation, where n is the numeric part of the factorial and M_E is the constant e.
         unsigned int numDigits = static_cast<unsigned int>(log10(2 * M_PI * n) / 2 + n * log10(n / M_E)) + 1;
         allocateDigits(numDigits);
 
-        HugeInt result("1"); // Δημιουργία καινούργιου αντικειμένου που θα χρησιμοποιηθεί αργότερα.
-        // Ο υπολογισμός ξεκινάει από το 3ο ψηφίο (το 2) γιατί είναι τα προηγούμενα 2 είναι τα 0 και 1 όπου ισχύει:
+        HugeInt result("1"); // Creating a new object to be used later.
+        // Calculation starts from the 3rd digit (2) because the previous 2 are 0 and 1 where:
         // !0=1, !1=1
         for (unsigned int i = 2; i <= n; i++) {
             HugeInt multiplier(to_string(i));
             result = result * multiplier;
         }
 
-        *this = result; // Τοποθέτηση νέων δεδομένων στο καλών αντικείμενο
+        *this = result; // Place new data in the calling object.
         return *this;
     }
 
     HugeInt& power(unsigned int B) {
-        // Εφαρμόσουμε τον αλγόριθμο της ταχείας δύναμης
+        // We apply the fast exponentiation algorithm.
         if (B == 0) {
-            // Any number to the power of 0 is 1
+            // Any number to the power of 0 is 1.
             allocateDigits(1);
             Digits[0] = '1';
             return *this;
         }
 
-        HugeInt base(*this); // Αντίγραφο της βάσης
-        HugeInt result("1"); // Αρχικοποίηση του αποτελέσματος σε 1
+        HugeInt base(*this); // Copy of the base.
+        HugeInt result("1"); // Initialize result to 1.
 
-        // Η ιδέα είναι ότι χρησιμοποιούμε το B μέχρι να μηδενιστεί
-        // Αν B είναι περιττός, τότε πολλαπλασιάζουμε τον αποτέλεσμα με 1 στην αρχή και συνεχίζουμε σαν να είναι πλέον άρτιος
+        // The idea is to use B until it becomes zero.
+        // If B is odd, then we multiply the result by 1 at the beginning and continue as if it is now even.
 
-        // Το κόλπο για να, ΜΕΙΩΘΕΙ Ο ΑΡΙΘΜΟΣ ΤΩΝ ΠΟΛΛΑΠΛΑΣΙΑΣΜΩΝ είναι το εξής:
-        // Πολλαπλασιάζουμε κάθε φορά όχι με τη βάση, αλλά με το αποτέλεσμα που δίνει η βάση σε κάθε πολλαπλασιασμό ξεκινώντας από την αρχική τιμή που δώθηκε γι'αυτή.
-        // ΑΝ έχει ΠΕΡΙΤΤΟ αριθμό η βάση τότε στη πρώτη επανάληψη του βρόγχου 'while' θέτει το αποτέλεσμα στην τιμή της βάσης σαν να λέμε πχ Α=5, Β=5: res=5^1 και μετά προσθέτει σε αυτό τα:
-        // [Α1=(5*5) * Α2=(5*5)] = 25*25 = 625
+        // The trick to REDUCE THE NUMBER OF MULTIPLICATIONS is as follows:
+        // Each time we multiply not with the base, but with the result of squaring the base from the initial value.
+        // IF the base has an ODD value, then in the first iteration of the loop 'while', it sets the result to the value of the base as if we say e.g. A=5, B=5: res=5^1, and then adds to it:
+        // [A1=(5*5) * A2=(5*5)] = 25*25 = 625
         // -----------------------------------------------------+
-        // αρχικές τιμές: A=5, Β=5, result=1
+        // Initial values: A=5, B=5, result=1
         //
-        // Στο ΤΕΛΟΣ του κάθε βρόγχου θα ισχύουν:
-        // 1ος βρόγχος Α=25, B=2, result=5
-        // 2ος βρόγχος Α=625, B=1, result=5
-        // 3ος βρόγχος Α=3125, B=0, result=3125
+        // At the END of each loop, the following will hold:
+        // 1st loop A=25, B=2, result=5
+        // 2nd loop A=625, B=1, result=5
+        // 3rd loop A=3125, B=0, result=3125
         while (B > 0) {
             if (B % 2 == 1) {
                 result = result * base;
@@ -134,13 +134,13 @@ public:
             B /= 2;
         }
 
-        // Αντιγραφή του αποτελέσματος στο τρέχον αντικείμενο
+        // Copy result to current object.
         *this = result;
         return *this;
     }
 };
 
-// Αρχικοποίηση στατικού μέλους
+// Initialize static member
 unsigned int HugeInt::activeInstances=0;
 
 // "cout <<" overload
@@ -161,7 +161,6 @@ HugeInt::operator bool() const {
 }
 
 // LESS-OR-EQUAL "<=" overload
-//Αυτό μπορεί να είναι χρήσιμο για να ελέγξουμε αν ένα αντικείμενο είναι "έγκυρο" ή αν έχει κάποια συγκεκριμένη κατάσταση.
 bool HugeInt::operator<=(const HugeInt& other) const {
     if (size != other.size)
         return size < other.size;
@@ -267,144 +266,86 @@ HugeInt& HugeInt::operator++() {
         for (int i = 0; i < size; i++)
             newDigits[i] = Digits[i];
 
-        newDigits[size] = carry + '0';
+        newDigits[size] = '1';
         delete[] Digits;
         Digits = newDigits;
         size++;
     }
+
     return *this;
 }
 
-// "*" overload
-HugeInt HugeInt::operator*(const HugeInt& obj2) const {
-    int maxSize = size + obj2.size;
-
-    char* result = new char[maxSize + 1];
-    for (int i = 0; i < maxSize; i++)
-        result[i] = '0';
+// MULTIPLICATION "*" overload
+HugeInt HugeInt::operator*(const HugeInt& other) const {
+    unsigned int newSize = size + other.size;
+    char* newDigits = new char[newSize];
+    memset(newDigits, '0', newSize);
 
     for (int i = 0; i < size; i++) {
         int carry = 0;
-        for (int j = 0; j < obj2.size || carry; j++) {
-            int mul = (result[i + j] - '0') + (Digits[i] - '0') * (j < obj2.size ? obj2.Digits[j] - '0' : 0) + carry;
-            carry = mul / 10;
-            result[i + j] = (mul % 10) + '0';
+        for (int j = 0; j < other.size; j++) {
+            int product = (Digits[i] - '0') * (other.Digits[j] - '0') + (newDigits[i + j] - '0') + carry;
+            newDigits[i + j] = (product % 10) + '0';
+            carry = product / 10;
         }
+
+        if (carry > 0)
+            newDigits[i + other.size] = carry + '0';
     }
 
-    reverse(result, result + maxSize);
-    string result_conv = convertToString(result);
-    delete[] result;  // Clean up allocated memory
-    return HugeInt(result_conv);
+    HugeInt result;
+    result.Digits = newDigits;
+    result.size = newSize;
+
+    return result;
 }
 
-// "+" overloard
-HugeInt HugeInt::operator+(const HugeInt& obj2) const {
+// ADDITION "+" overload
+HugeInt HugeInt::operator+(const HugeInt& other) const {
+    unsigned int newSize = max(size, other.size) + 1;
+    char* newDigits = new char[newSize];
+    memset(newDigits, '0', newSize);
+
     int carry = 0;
-    int maxSize = max(size, obj2.size);
-
-    char* result = new char[maxSize + 1];
-
-    for (int i = 0; i < maxSize || carry; i++) {
+    for (int i = 0; i < newSize - 1; i++) {
         int sum = carry;
-
         if (i < size)
-            sum += Digits[i] - '0';
-        if (i < obj2.size)
-            sum += obj2.Digits[i] - '0';
-
+            sum += (Digits[i] - '0');
+        if (i < other.size)
+            sum += (other.Digits[i] - '0');
+        newDigits[i] = (sum % 10) + '0';
         carry = sum / 10;
-        result[i] = (sum % 10) + '0';
     }
 
-    reverse(result, result + maxSize);
-    string result_conv = convertToString(result);
-    delete[] result;  // Clean up allocated memory
-    return HugeInt(result_conv);
+    newDigits[newSize - 1] = carry + '0';
+
+    HugeInt result;
+    result.Digits = newDigits;
+    result.size = newSize;
+
+    return result;
 }
 
-// copy constructor
-HugeInt::HugeInt(const HugeInt& rv) {
-    size = rv.size;
-    Digits = new char[size];
-    for (int i = 0; i < size; i++)
-        Digits[i] = rv.Digits[i];
-    activeInstances++;
-}
-
-// destructor
+// DESTRUCTOR
 HugeInt::~HugeInt() {
-    activeInstances--;
     delete[] Digits;
 }
 
-// overload constructor that takes string
+// DEFAULT CONSTRUCTOR
+HugeInt::HugeInt() : size(0), Digits(nullptr) {}
+
+// STRING CONSTRUCTOR
 HugeInt::HugeInt(string numStr) {
     size = numStr.length();
     Digits = new char[size];
     for (int i = 0; i < size; i++)
-        Digits[i] = numStr[size - i - 1];
-    activeInstances++;
+        Digits[i] = numStr[size - 1 - i];
 }
 
-// default constructor
-HugeInt::HugeInt() {
-    size = 1;
+// COPY CONSTRUCTOR
+HugeInt::HugeInt(const HugeInt& other) {
+    size = other.size;
     Digits = new char[size];
-    Digits[0] = '0';
-    activeInstances++;
+    for (int i = 0; i < size; i++)
+        Digits[i] = other.Digits[i];
 }
-
-int main() {
-    {
-        ΗugeInt num1("5");
-        cout << "Active Instances: " << HugeInt::getActiveIntstances() << endl;
-        HugeInt num2("23946687");
-        cout << "Active Instances: " << HugeInt::getActiveIntstances() << endl;
-        HugeInt num3;
-        cout << "Active Instances: " << HugeInt::getActiveIntstances() << endl;
-
-    /*
-        num3 = num1 + num2;
-        num3.printDigitsAsIntegers();
-
-        num3 = num1 * num2;
-        num3.printDigitsAsIntegers();
-
-        num3 = ++num1;
-        num3.printDigitsAsIntegers();
-
-        num3 = num2++;
-        num3.printDigitsAsIntegers();
-
-        num3.printStuff(num1, num2);
-
-
-        num1.factorial();
-        num1.printDigitsAsIntegers();
-
-
-        num1.power(5);
-        num1.printDigitsAsIntegers();
-
-        // num3 = num1 * 2;
-        // *ερώτηση άσκησης 4* Απάντηση: Η παραπάνω πράξη είναι αδύνατο να πραγματοποιηθεί από τη στιγμή που έχουμε υπερφορτώσει τον τελεστή "*" στη κλάση HugeInt. Αυτό σημαίνει ότι όταν περιλαμβάνεται στη πράξη αντικείμενο τύπου HugeInt με τη χρήση του τελεστή αυτού υπερκαλύπτεται από τον νατίχτοιχο constructor.
-
-        //cout << num2;
-    */
-
-    }
-    cout << "Active Instances: " << HugeInt::getActiveIntstances() << endl;
-
-    return 0;
-}
-
-/*
-// printStuff function
-void HugeInt::printStuff(const HugeInt& a, const HugeInt& b) {
-    cout << "Digits in a as integers: ";
-    a.printDigitsAsIntegers();
-    cout << "Digits in b as integers: ";
-    b.printDigitsAsIntegers();
-}
-*/
